@@ -25,13 +25,18 @@ const HomeRoutes = () => (
           <FeatherIcons name={'camera'} size={25} color="#000" />
         ),
         headerTitle: () => (
-          <Image source={logo} resizeMode={'contain'} style={{width: 120}} />
+          <Image
+            source={logo}
+            resizeMode={'contain'}
+            style={{width: 120, height: 50}}
+          />
         ),
         headerRight: () => (
           <IoniconsIcons name="paper-plane-outline" size={25} color={'#000'} />
         ),
       }}
     />
+
   </HomeStack.Navigator>
 );
 

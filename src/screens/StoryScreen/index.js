@@ -10,35 +10,46 @@ import {
   View,
 } from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
-import {STORIES_DATA} from '../../data/stories';
 import styles from './styles';
 import ProfilePicture from '../../components/ProfilePicture';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {API, graphqlOperation} from 'aws-amplify';
+import {listStories} from '../../graphql/queries';
+import moment from 'moment';
 
 const StoryScreen = () => {
   const route = useRoute();
   const navigation = useNavigation();
-  const {userId} = route.params;
-  const [userStories, setUserStories] = useState(null);
+  const [stories, setStories] = useState([]);
   const [activeStoryIndex, setActiveStoryIndex] = useState(null);
 
   useEffect(() => {
-    const stories = STORIES_DATA.find(s => s.user.id === userId);
-    setUserStories(stories);
+    fetchStories();
     setActiveStoryIndex(0);
   }, []);
 
+  const fetchStories = async () => {
+    try {
+      const storyData = await API.graphql(graphqlOperation(listStories));
+      setStories(storyData.data.listStories.items);
+    } catch (e) {
+      console.log(e.message);
+    }
+  };
+
   const navigateToNextUser = () => {
-    navigation.push('Story', {userId: String(parseInt(userId) + 1)});
+    navigation.pop();
+    // navigation.push('Story', {userId: String(parseInt(userId) + 1)});
   };
 
   const navigateToPreviousUser = () => {
-    navigation.push('Story', {userId: String(parseInt(userId) - 1)});
+    navigation.pop();
+    // navigation.push('Story', {userId: String(parseInt(userId) - 1)});
   };
 
   const handleNextStory = () => {
-    if (activeStoryIndex >= userStories.stories.length - 1) {
+    if (activeStoryIndex >= stories.length - 1) {
       navigateToNextUser();
       return;
     }
@@ -62,7 +73,7 @@ const StoryScreen = () => {
     }
   };
 
-  if (!userStories) {
+  if (!stories || stories.length === 0) {
     return (
       <SafeAreaView>
         <ActivityIndicator />
@@ -70,24 +81,29 @@ const StoryScreen = () => {
     );
   }
 
-  const activeStory = userStories.stories[activeStoryIndex];
+  const activeStory = stories[activeStoryIndex];
   return (
     <SafeAreaView style={styles.container}>
       <TouchableWithoutFeedback onPress={event => handleStoryClick(event)}>
-        <ImageBackground
-          style={styles.image}
-          source={{uri: activeStory.imageUri}}>
+        <ImageBackground style={styles.image} source={{uri: activeStory.image}}>
           <View style={styles.userInfo}>
-            <ProfilePicture uri={userStories.user.imageUri} size={40} />
-            <Text style={styles.userName}>{userStories.user.name}</Text>
-            <Text style={styles.postedTime}>{activeStory.postedTime}</Text>
+            <ProfilePicture uri={activeStory.user.image} size={40} />
+            <Text style={styles.userName}>{activeStory.user.name}</Text>
+            <Text style={styles.postedTime}>
+              {moment(activeStory.createdAt).fromNow()}
+            </Text>
           </View>
           <View style={styles.bottomContainer}>
             <View style={styles.cameraButton}>
               <Feather name="camera" size={30} color="#fff" />
             </View>
             <View style={styles.textContainer}>
-              <TextInput placeholder={'Send Message'} editable placeholderTextColor={'#fff'} style={styles.textInput} />
+              <TextInput
+                placeholder={'Send Message'}
+                editable
+                placeholderTextColor={'#fff'}
+                style={styles.textInput}
+              />
             </View>
             <View style={styles.messageButton}>
               <Ionicons name="paper-plane-outline" size={30} color="#fff" />

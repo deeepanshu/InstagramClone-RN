@@ -6,16 +6,15 @@ import {useNavigation} from '@react-navigation/native';
 
 const Story = ({story}) => {
   const {
-    user: {id, imageUri, name},
+    user: {id, image, name},
   } = story;
   const navigation = useNavigation();
   const onStoryClick = () => {
-    console.log(name);
     navigation.navigate('Story', {userId: id});
   };
   return (
     <TouchableOpacity style={styles.container} onPress={onStoryClick}>
-      <ProfilePicture uri={imageUri} />
+      <ProfilePicture uri={image} />
       <Text style={styles.name}>{name}</Text>
     </TouchableOpacity>
   );

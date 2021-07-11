@@ -5,6 +5,7 @@ import AntDesignIcon from 'react-native-vector-icons/AntDesign';
 import FontistoIcon from 'react-native-vector-icons/Fontisto';
 import IoniconsIcon from 'react-native-vector-icons/Ionicons';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
+import moment from 'moment';
 
 const Footer = ({likesCount, caption, postedAt}) => {
   const [likes, setLikes] = useState(likesCount);
@@ -37,7 +38,7 @@ const Footer = ({likesCount, caption, postedAt}) => {
       </View>
       <Text style={styles.likes}>{likes} Likes</Text>
       <Text style={styles.caption}>{caption}</Text>
-      <Text style={styles.postedAt}>{postedAt}</Text>
+      <Text style={styles.postedAt}>{moment(postedAt).fromNow()}</Text>
     </View>
   );
 };
